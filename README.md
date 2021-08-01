@@ -10,7 +10,7 @@ The files in Project3 folder are what should be in the src folder of a catkin wo
 
 
 Here is an image of rviz when at the start before the robot starts moving. We can see the initial particle cloud as a bunch of purple arrows. Each arrow/particle is a guess for where the robot could be.
-![Alt text](Project3/media/initial_particles.png?raw=true "Initial particle cloud.")
+![Alt text](media/initial_particles.png?raw=true "Initial particle cloud.")
 
 This is after the robot has been localised.
 Here we can see that the particle cloud has converged after moving the robot a few steps.
