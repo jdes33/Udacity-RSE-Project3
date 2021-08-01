@@ -14,5 +14,5 @@ Here is an image of rviz when at the start before the robot starts moving. We ca
 
 This is after the robot has been localised.
 Here we can see that the particle cloud has converged after moving the robot a few steps.
-![Alt text](Project3/media/final_localised_whole_map.png?raw=true "Particle cloud after a few steps.")
-![Alt text](Project3/media/final_localised_zoomed.png?raw=true "Particle cloud after a few steps.")
+![Alt text](media/final_localised_whole_map.png?raw=true "Particle cloud after a few steps.")
+![Alt text](media/final_localised_zoomed.png?raw=true "Particle cloud after a few steps.")
