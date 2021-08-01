@@ -1,0 +1,60 @@
+<launch>
+	<!-- Map Server -->
+	<!-- add an argument of the path to make it easy to change the map loaded -->
+	<arg name="map_file" default="$(find my_robot)/maps/map.yaml"/>
+	<!-- create a node using the argument created above to locate the map file-->
+	<node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)"/>
+
+	<!-- AMCL Node -->
+	<node name="amcl" pkg="amcl" type="amcl" output="screen">
+		<!-- the hokuyo lidar actually publishes to "/scan" (as defined in the my_robot.gazebo file), but the amcl package looks for the "scan" topic so we need to do some remapping when using this node -->
+		<remap from="scan" to="/scan"/>
+		<!-- The AMCL node also requires a set of parameters in order to connect the world (map frame) with the robot (odom frame) -->
+		<param name="odom_frame_id" value="odom"/>  <!-- which frame to use for odometry -->
+		<param name="odom_model_type" value="diff-corrected"/>  <!-- which model to use, either "diff", "omni", "diff-corrected" or "omni-corrected" -->
+		<param name="base_frame_id" value="robot_footprint"/>  <!-- which frame to use for the robot base -->
+		<param name="global_frame_id" value="map"/>  <!-- the name of the coordinate frame published by the localisation system -->
+
+		<!-- Define initial pose (note: this bit is optional, amcl should still be able to localise even if it starts by using the wrong/default initial pose) -->
+		<param name="initial_pose_x" value="0"/>
+		<param name="initial_pose_y" value="0"/>
+		<param name="initial_pose_a" value="-1.570796"/>  <!-- initial yaw in radians -->
+
+
+		<!-- overall filter parameters -->
+		<param name="min_particles" value="100"/> <!-- (default: 100) -->
+		<param name="max_particles" value="1000"/><!-- (default: 5000) -->
+		<param name="update_min_d" value="0.01"/> <!-- translational movement required before performing a filter update (default: 0.2 meters) -->
+		<param name="update_min_a" value="0.01"/> <!-- rotational movement required before performing a filter update (default: pi/6 rads) -->
+
+		<!-- laser parameters -->
+		<param name="laser_min_range" value="-1.0"/> <!-- min scan range to be considered, -1 will make it use laser's reported min range (default: -1.0) -->
+		<param name="laser_max_range" value="-1.0"/> <!-- max scan range to be considered, -1 will make it use laser's reported max range (default: -1.0) -->
+		<param name="laser_max_beams" value="30"/> <!-- how many evenly spaced beams to be used in each scan when updating the filter (default: 30) -->
+		<!-- the below two must sum to 1 -->
+		<param name="laser_z_hit" value="0.95"/> <!-- (default: 0.95) -->
+		<param name="laser_z_rand" value="0.05"/> <!-- (default: 0.05) -->
+
+
+		<!-- deal with transform timeout error by adjusting parameters -->
+		<param name="transform_tolerance" value="0.5"/>
+	</node>
+
+	<!-- Move Base -->
+	<!-- In order to allow the robot to collect more information about it's surroundings we will use the move_base package which make the robot move to a defined goal position. Note: using this node is optional as we could instead just use the teleop node and move the robot around manually. -->
+	<node name="move_base" pkg="move_base" type="move_base" respawn="false" output="screen">
+		<remap from="scan" to="/scan"/>
+		<param name="base_global_planner" value="navfn/NavfnROS"/>
+		<param name="base_local_planner" value="base_local_planner/TrajectoryPlannerROS"/>
+		
+		<!-- Here we will use the rosparam tag to include config files to set multiple parameters directly. -->
+		<rosparam file="$(find my_robot)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+  		<rosparam file="$(find my_robot)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+  		<rosparam file="$(find my_robot)/config/local_costmap_params.yaml" command="load" />
+  		<rosparam file="$(find my_robot)/config/global_costmap_params.yaml" command="load" />
+  		<rosparam file="$(find my_robot)/config/base_local_planner_params.yaml" command="load" />		
+	</node>
+
+
+
+</launch>
